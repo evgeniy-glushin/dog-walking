@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Web.Models
+namespace Domain.Models
 {
     public class DogWalker
     {
         public int Id { get; set; }
         public List<Customer> Customers { get; set; }
-        public PriceRate PriceRate { get; set; }
+        public List<PriceRate> PriceRates { get; set; }
         public List<WorkingDay> WorkingDays { get; set; }
         public List<Walk> BookedWalks { get; set; }
         public List<DogPack> DogPacks { get; set; }
@@ -25,13 +25,13 @@ namespace Web.Models
         public DogSize DogSize { get; set; }
         public bool IsAggressive { get; set; }
         public decimal PricePerWalk { get; set; }
-        public byte MaxInPack { get; set; }
-        public TimeSpan WalkDuration { get; set; }
+        public byte MaxPacksCount  { get; set; }
     }
 
     public class Dog
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
+        public string Name { get; set; }
         public bool IsAggressive { get; set; }
         public DogSize Size { get; set; }
     }
@@ -57,7 +57,7 @@ namespace Web.Models
 
     public enum DogSize
     {
-        None = 0, // TODO: consider to delete this
+        //None = 0, // TODO: consider to delete this
         Small = 1,
         Large = 3
     }
@@ -66,7 +66,7 @@ namespace Web.Models
     {
         public DogSize DogSize { get; set; }
         public bool IsAggressive { get; set; }
-        public byte MaxPackCount { get; set; }
+        public byte MaxPacksCount { get; set; } //TODO: refactor the name
     }
 
     public class RevenuReport

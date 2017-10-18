@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Web.DataLayer.Abstraction;
+using Web.DataLayer.InMemoryImptemantation;
+using Web.Services;
 
 namespace Web
 {
@@ -25,6 +28,11 @@ namespace Web
         {
             // Add framework services.
             services.AddMvc();
+
+            services.AddScoped<IDogWalkersRepository, DogWalkerInMemoryRepository>();
+            services.AddScoped<IDogPackBuilder, DogPackBuilder>();
+            services.AddScoped<IWalksBuilder, WalksWeekdaysBuilder>();
+            services.AddScoped<IWalkingService, WalkingService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,21 +1,21 @@
-﻿using System;
+﻿using Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Web.Models;
 
 namespace Web.Services
 {
-    public class WeeklyScheduleBuilder
+    public class WalksWeekdaysBuilder : IWalksBuilder
     {
         public static TimeSpan DayStartsAt => TimeSpan.FromDays(10);
         public static TimeSpan DayEndsAt => TimeSpan.FromDays(16);
 
         public IEnumerable<Walk> Build(WeeklySchedulePayload payload)
         {
-            var packsWithDogs = payload?.DogPacks?.Where(dp => dp.Dogs?.Any() ?? false);
+            var packsWithDogs = payload?.DogPacks?.Where(dp => dp.Dogs?.Any() ?? false).ToList();
             if (!packsWithDogs?.Any() ?? false || payload?.WorkingDays == null)
                 return Enumerable.Empty<Walk>();
-            
+
             return DateRange(payload.DateFrom, payload.DateTo)
                 .Where(d => IsWeekDay(d.DayOfWeek))
                 .Select(d => CreateWolks(d, packsWithDogs, payload))
@@ -29,7 +29,8 @@ namespace Web.Services
                 dayOfWeek != DayOfWeek.Saturday && dayOfWeek != DayOfWeek.Sunday;
         }
 
-        IEnumerable<Walk> CreateWolks(DateTime date, IEnumerable<DogPack> packsWithDogs, WeeklySchedulePayload payload)
+        int _cursor = 0; //TODO: try to avoid the state
+        IEnumerable<Walk> CreateWolks(DateTime date, List<DogPack> packsWithDogs, WeeklySchedulePayload payload)
         {
             var getDogPack = BuildDogPackFetcher();
 
@@ -44,16 +45,16 @@ namespace Web.Services
                    Duration = payload.WalkDuration
                }) ?? Enumerable.Empty<Walk>();
 
-
             Func<DogPack> BuildDogPackFetcher()
             {
-                var dogPacksQueue = new Stack<DogPack>();
                 return () =>
                 {
-                    if (!dogPacksQueue.Any())
-                        dogPacksQueue = new Stack<DogPack>(packsWithDogs);
+                    if (_cursor > packsWithDogs.Count - 1)
+                        _cursor = 0;
 
-                    return dogPacksQueue.Pop();
+                    var pack =  packsWithDogs[_cursor];
+                    ++_cursor;
+                    return pack;
                 };
             }
 
@@ -69,6 +70,6 @@ namespace Web.Services
 
                 return isRightDayTime;
             }
-        }       
+        }
     }
 }

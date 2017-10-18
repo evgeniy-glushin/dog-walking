@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Web.Controllers
 {
@@ -8,9 +9,9 @@ namespace Web.Controllers
     {
         // GET api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<DateTime> Get()
         {
-            return new string[] { "value1", "value2" };
+            return new DateTime[] { DateTime.Now, DateTime.Now + TimeSpan.FromDays(7) };
         }
 
         // GET api/values/5

@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Domain.Models;
+using System;
 using System.Collections.Generic;
-using Web.Models;
 
 namespace Web.Services
 {

@@ -1,9 +1,9 @@
-﻿using FsCheck;
+﻿using Domain.Models;
+using FsCheck;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Web.Models;
 using Web.Services;
 
 namespace Tests.UnitTests
@@ -11,12 +11,12 @@ namespace Tests.UnitTests
     [TestFixture]
     class WeeklyScheduleBuilderTests
     {
-        private WeeklyScheduleBuilder _weeklyScheduleBuilder;
+        private WalksWeekdaysBuilder _weeklyScheduleBuilder;
 
         [SetUp]
         public void BeforeEach()
         {
-            _weeklyScheduleBuilder = new WeeklyScheduleBuilder();
+            _weeklyScheduleBuilder = new WalksWeekdaysBuilder();
         }
 
         [ScheduleBulder]
@@ -141,7 +141,7 @@ namespace Tests.UnitTests
             public static Arbitrary<DogPack> DogPack() =>
                 Arb.Default
                    .Derive<DogPack>()
-                   .Filter(dp => dp.Dogs.Any() && dp.Dogs.All(d => d.Size != DogSize.None));
+                   .Filter(dp => dp.Dogs.Any());
 
             public static Arbitrary<ScheduleTimeBounds> ScheduleTimeBounds() =>
                 Arb.Default
@@ -179,8 +179,8 @@ namespace Tests.UnitTests
                      DateFrom = DateTime.Now,
                      DateTo = DateTime.Now + TimeSpan.FromDays(15),
                      WorkingDays = WeekDays(),
-                     DayStartsAt = WeeklyScheduleBuilder.DayStartsAt,
-                     DayEndsAt = WeeklyScheduleBuilder.DayEndsAt,
+                     DayStartsAt = WalksWeekdaysBuilder.DayStartsAt,
+                     DayEndsAt = WalksWeekdaysBuilder.DayEndsAt,
                      WalkDuration = TimeSpan.FromHours(1),
                      Now = DateTime.Now
                  };
@@ -217,37 +217,3 @@ namespace Tests.UnitTests
         }
     }
 }
-
-
-// TODO: might be useful for integration tests
-//[DogPacksWithDogs]
-//public void Build_wolks_Monday_through_Friday(List<DogPack> dogPacks)
-//{
-//    // Arrange
-//    _weeklySchedulePayload.DogPacks = dogPacks;
-
-//    // Act
-//    var walks = _weeklyScheduleBuilder.Build(_weeklySchedulePayload);
-
-//    // Assert
-//    var isWeekDays = walks.All(w => IsWeekDay(w.StartDateTime.DayOfWeek));
-//    Assert.True(isWeekDays);
-
-//    bool IsWeekDay(DayOfWeek dayOfWeek) =>
-//        dayOfWeek != DayOfWeek.Saturday && dayOfWeek != DayOfWeek.Sunday;
-//}
-
-
-//public static Arbitrary<WorkingDayTimeBounds> WorkingDayTimeBounds() =>
-// Arb.Default
-//    .Derive<WorkingDayTimeBounds>()
-//    .Filter(tb => {
-//        return tb.DayStartsAt >= TimeSpan.FromHours(7) && tb.DayStartsAt <= TimeSpan.FromHours(11) &&
-//                  tb.DayEndsAt >= TimeSpan.FromHours(15) && tb.DayEndsAt <= TimeSpan.FromHours(19);
-//    });
-
-//class WorkingDayTimeBounds
-//{
-//    public TimeSpan DayStartsAt { get; set; }
-//    public TimeSpan DayEndsAt { get; set; }
-//}

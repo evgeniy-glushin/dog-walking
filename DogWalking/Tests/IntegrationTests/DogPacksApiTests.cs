@@ -1,0 +1,89 @@
+﻿using Domain.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Web;
+
+namespace Tests.IntegrationTests
+{
+    [TestFixture]
+    class DogPacksApiTests
+    {
+        // 1. All the dog packs are separeted into small, large and aggressive dogs
+        // 2. Pack sizes match with requirements large - 3, small - 5, aggressive - 1
+
+        private const string BuildPacksUri = "/api/dogpacks/build";
+        private TestServer _server;
+        private HttpClient _client;
+        [SetUp]
+        public void BeforeEach()
+        {
+            _server = new TestServer(new WebHostBuilder().UseStartup<Startup>());
+            _client = _server.CreateClient();
+        }
+
+        [Test]
+        public async Task Build_ensure_dogs_separated_into_small_large_and_aggressive_packs()
+        {
+            // Act
+            var response = await _client.PostAsync(BuildPacksUri, null);
+            response.EnsureSuccessStatusCode();
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            var createdPacks = JsonConvert.DeserializeObject<List<DogPack>>(responseString);
+
+            // Assert
+            var isSameType = createdPacks.All(dp => IsSameType(dp.Dogs));
+            Assert.True(isSameType);
+
+            // TODO: might be refactored
+            bool IsSameType(IEnumerable<Dog> dogsInPack)
+            {
+                var first = dogsInPack.FirstOrDefault();
+                return dogsInPack.All(d => d.Size == first.Size && d.IsAggressive == first.IsAggressive);
+            }
+        }
+
+        [Test]
+        public async Task Build_ensure_every_type_of_pack_has_right_number_of_dogs()
+        {
+            // Arrange
+            var expectedNumbers = new[]
+            {
+                new { size = DogSize.Small, isAggressive = false, number = 5 },
+                new { size = DogSize.Large, isAggressive = false, number = 3 },
+                new { size = DogSize.Small, isAggressive = true, number = 1 },
+                new { size = DogSize.Large, isAggressive = true, number = 1 }
+            };
+
+            // Act
+            var response = await _client.PostAsync(BuildPacksUri, null);
+            response.EnsureSuccessStatusCode();
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            var createdPacks = JsonConvert.DeserializeObject<List<DogPack>>(responseString);
+
+            // Assert
+            var isExpectedSize = createdPacks.All(HaveCorrectSize);
+            Assert.True(isExpectedSize);
+
+            bool HaveCorrectSize(DogPack pack)
+            {
+                var (size, isAggressive) = GetDogPackType(pack);
+                var expected = expectedNumbers.First(x => x.size == size && x.isAggressive == isAggressive);
+                return pack.Dogs.Count <= expected.number;
+            }
+            
+            (DogSize, bool) GetDogPackType(DogPack pack)
+            {
+                var firstDog = pack.Dogs.FirstOrDefault();
+                return (firstDog.Size, firstDog.IsAggressive);
+            }
+        }
+    }
+}

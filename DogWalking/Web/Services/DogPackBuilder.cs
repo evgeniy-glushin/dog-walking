@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Domain.Models;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using Web.Models;
 
 
 namespace Web.Services
 {
-    public class DogPackBuilder
+    public class DogPackBuilder : IDogPackBuilder
     {
         public IEnumerable<DogPack> Build(IEnumerable<Dog> dogs, IEnumerable<DogPackConfig> configs)
         {
@@ -21,13 +22,13 @@ namespace Web.Services
 
             IEnumerable<DogPack> BuildDogPacks(List<Dog> sameDogs, DogPackConfig config)
             {
-                var packsCount = config.MaxPackCount > 0 ? sameDogs.Count / config.MaxPackCount + 1 : 0;
+                var packsCount = config.MaxPacksCount > 0 ? (int)Math.Ceiling((decimal)sameDogs.Count / config.MaxPacksCount) : 0;
                 return Enumerable.Range(0, packsCount)
                     .Select(n => new DogPack
                     {
                         Dogs = sameDogs
-                            .Skip(n)
-                            .Take(config.MaxPackCount)
+                            .Skip(n * config.MaxPacksCount)
+                            .Take(config.MaxPacksCount)
                             .ToList()
                     });
             }
