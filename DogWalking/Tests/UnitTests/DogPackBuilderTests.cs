@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Web.Services;
+using static Tests.DogPacksHelper;
 
 namespace Tests.UnitTests
 {
@@ -17,13 +18,13 @@ namespace Tests.UnitTests
         {            
             // Arrange
             var dpb = new DogPackBuilder();
-            var largeConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = maxPackSize };
-            var smallConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = maxPackSize };
-            var largeAggressiveConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = 1, IsAggressive = true };
-            var smallAggressiveConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = 1, IsAggressive = true };
+            var largeRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = maxPackSize };
+            var smallRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = maxPackSize };
+            var largeAggressiveRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = 1, IsAggressive = true };
+            var smallAggressiveRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = 1, IsAggressive = true };
 
             // Act
-            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveConfig, smallAggressiveConfig, largeConfig, smallConfig }).ToList();
+            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveRate, smallAggressiveRate, largeRate, smallRate }).ToList();
 
             // Assert
             var missedDogs = dogs.Where(IsInDogPacks).ToList();
@@ -40,13 +41,13 @@ namespace Tests.UnitTests
         {          
             // Arrange
             var dpb = new DogPackBuilder();
-            var largeConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = maxPackSize };
-            var smallConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = maxPackSize };
-            var largeAggressiveConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = 1, IsAggressive = true };
-            var smallAggressiveConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = 1, IsAggressive = true };
+            var largeRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = maxPackSize };
+            var smallRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = maxPackSize };
+            var largeAggressiveRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = 1, IsAggressive = true };
+            var smallAggressiveRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = 1, IsAggressive = true };
 
             // Act
-            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveConfig, smallAggressiveConfig, largeConfig, smallConfig }).ToList();
+            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveRate, smallAggressiveRate, largeRate, smallRate }).ToList();
 
             // Assert
             Assert.AreEqual(0, dogPacks.Count(dp => dp.Dogs.Count == 0));
@@ -57,13 +58,13 @@ namespace Tests.UnitTests
         {
             // Arrange
             var dpb = new DogPackBuilder();
-            var largeConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = maxPackSize };
-            var smallConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = maxPackSize };
-            var largeAggressiveConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = 1, IsAggressive = true };
-            var smallAggressiveConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = 1, IsAggressive = true };
+            var largeRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = maxPackSize };
+            var smallRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = maxPackSize };
+            var largeAggressiveRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = 1, IsAggressive = true };
+            var smallAggressiveRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = 1, IsAggressive = true };
 
             // Act
-            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveConfig, smallAggressiveConfig, largeConfig, smallConfig });
+            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveRate, smallAggressiveRate, largeRate, smallRate });
 
             // Assert
             var duplicatedDogs = dogs.Where(d => CountInPacks(d) > 1).ToList();
@@ -80,23 +81,20 @@ namespace Tests.UnitTests
         {
             // Arrange
             var dpb = new DogPackBuilder();
-            var largeConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = maxPackSize };
-            var smallConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = maxPackSize };
-            var largeAggressiveConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = 1, IsAggressive = true };
-            var smallAggressiveConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = 1, IsAggressive = true };
+            var largeRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = maxPackSize };
+            var smallRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = maxPackSize };
+            var largeAggressiveRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = 1, IsAggressive = true };
+            var smallAggressiveRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = 1, IsAggressive = true };
 
             // Act
-            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveConfig, smallAggressiveConfig, largeConfig, smallConfig });
+            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveRate, smallAggressiveRate, largeRate, smallRate });
 
             // Assert
-            var isSameType = dogPacks.All(dp => IsSameType(dp.Dogs));
-            Assert.True(isSameType);
+            var isSameType = dogPacks
+                .Select(dp => dp.Dogs)
+                .All(HaveSameType);
 
-            bool IsSameType(IEnumerable<Dog> dogsInPack)
-            {
-                var first = dogsInPack.FirstOrDefault();
-                return dogsInPack.All(d => d.Size == first.Size && d.IsAggressive == first.IsAggressive);
-            }
+            Assert.True(isSameType);            
         }
 
         [MaxPackSize]
@@ -104,14 +102,14 @@ namespace Tests.UnitTests
         {
             // Arrange
             var dpb = new DogPackBuilder();
-            var smallConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = maxPackSize };
+            var smallRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = maxPackSize };
 
             // Act
-            var dogPacks = dpb.Build(dogs, new[] { smallConfig });
+            var dogPacks = dpb.Build(dogs, new[] { smallRate });
 
             // Assert
             var smallNotAggressiveDogsCount = dogs.Count(d => d.Size == DogSize.Small && !d.IsAggressive);
-            var expectedPacksCount = smallNotAggressiveDogsCount > 0 ? Math.Ceiling((decimal)smallNotAggressiveDogsCount / smallConfig.MaxPacksCount) : 0;
+            var expectedPacksCount = smallNotAggressiveDogsCount > 0 ? Math.Ceiling((decimal)smallNotAggressiveDogsCount / smallRate.MaxPackSize) : 0;
             var actualPacksCount = dogPacks.Count();
             Assert.AreEqual(expectedPacksCount, actualPacksCount);
         }
@@ -121,14 +119,14 @@ namespace Tests.UnitTests
         {
             // Arrange
             var dpb = new DogPackBuilder();
-            var largeConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = maxPackSize };
+            var largeRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = maxPackSize };
 
             // Act
-            var dogPacks = dpb.Build(dogs, new[] { largeConfig });
+            var dogPacks = dpb.Build(dogs, new[] { largeRate });
 
             // Assert
             var largeNotAggressiveDogsCount = dogs.Count(d => d.Size == DogSize.Large && !d.IsAggressive);
-            var expectedPacksCount = largeNotAggressiveDogsCount > 0 ? Math.Ceiling((decimal)largeNotAggressiveDogsCount / largeConfig.MaxPacksCount) : 0;
+            var expectedPacksCount = largeNotAggressiveDogsCount > 0 ? Math.Ceiling((decimal)largeNotAggressiveDogsCount / largeRate.MaxPackSize) : 0;
             var actualPacksCount = dogPacks.Count();
             Assert.AreEqual(expectedPacksCount, actualPacksCount);
         }
@@ -138,17 +136,17 @@ namespace Tests.UnitTests
         {
             // Arrange
             var dpb = new DogPackBuilder();
-            var largeAggressiveConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = maxPackSize, IsAggressive = true };
-            var smallAggressiveConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = maxPackSize, IsAggressive = true };
+            var largeAggressiveRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = maxPackSize, IsAggressive = true };
+            var smallAggressiveRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = maxPackSize, IsAggressive = true };
 
             // Act
-            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveConfig, smallAggressiveConfig });
+            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveRate, smallAggressiveRate });
 
             // Assert
             var largeAggressiveDogsCount = dogs.Count(d => d.Size == DogSize.Large && d.IsAggressive);
             var smallAggressiveDogsCount = dogs.Count(d => d.Size == DogSize.Small && d.IsAggressive);
-            var expectedPacksCount = (largeAggressiveDogsCount > 0 ? Math.Ceiling((decimal)largeAggressiveDogsCount / largeAggressiveConfig.MaxPacksCount) : 0) +
-                                     (smallAggressiveDogsCount > 0 ? Math.Ceiling((decimal)smallAggressiveDogsCount / smallAggressiveConfig.MaxPacksCount) : 0);
+            var expectedPacksCount = (largeAggressiveDogsCount > 0 ? Math.Ceiling((decimal)largeAggressiveDogsCount / largeAggressiveRate.MaxPackSize) : 0) +
+                                     (smallAggressiveDogsCount > 0 ? Math.Ceiling((decimal)smallAggressiveDogsCount / smallAggressiveRate.MaxPackSize) : 0);
             var actualPacksCount = dogPacks.Count();
 
             Assert.AreEqual(expectedPacksCount, actualPacksCount);
@@ -159,13 +157,13 @@ namespace Tests.UnitTests
         {
             // Arrange
             var dpb = new DogPackBuilder();
-            var largeConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = maxPackSize };
-            var smallConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = maxPackSize };
-            var largeAggressiveConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = 1, IsAggressive = true };
-            var smallAggressiveConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = 1, IsAggressive = true };
+            var largeRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = maxPackSize };
+            var smallRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = maxPackSize };
+            var largeAggressiveRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = 1, IsAggressive = true };
+            var smallAggressiveRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = 1, IsAggressive = true };
 
             // Act
-            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveConfig, smallAggressiveConfig, largeConfig, smallConfig });
+            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveRate, smallAggressiveRate, largeRate, smallRate });
 
             // Assert
             var largeAggressiveDogsCount = dogs.Count(d => d.Size == DogSize.Large && d.IsAggressive);
@@ -173,10 +171,10 @@ namespace Tests.UnitTests
             var largeDogsCount = dogs.Count(d => d.Size == DogSize.Large && !d.IsAggressive);
             var smallDogsCount = dogs.Count(d => d.Size == DogSize.Small && !d.IsAggressive);
 
-            var expectedPacksCount = (largeAggressiveDogsCount > 0 ? Math.Ceiling((decimal)largeAggressiveDogsCount / largeAggressiveConfig.MaxPacksCount) : 0) +
-                                     (smallAggressiveDogsCount > 0 ? Math.Ceiling((decimal)smallAggressiveDogsCount / smallAggressiveConfig.MaxPacksCount) : 0) +
-                                     (largeDogsCount > 0 ? Math.Ceiling((decimal)largeDogsCount / largeConfig.MaxPacksCount) : 0) +
-                                     (smallDogsCount > 0 ? Math.Ceiling((decimal)smallDogsCount / smallConfig.MaxPacksCount) : 0);
+            var expectedPacksCount = (largeAggressiveDogsCount > 0 ? Math.Ceiling((decimal)largeAggressiveDogsCount / largeAggressiveRate.MaxPackSize) : 0) +
+                                     (smallAggressiveDogsCount > 0 ? Math.Ceiling((decimal)smallAggressiveDogsCount / smallAggressiveRate.MaxPackSize) : 0) +
+                                     (largeDogsCount > 0 ? Math.Ceiling((decimal)largeDogsCount / largeRate.MaxPackSize) : 0) +
+                                     (smallDogsCount > 0 ? Math.Ceiling((decimal)smallDogsCount / smallRate.MaxPackSize) : 0);
             var actualPacksCount = dogPacks.Count();
 
             Assert.AreEqual(expectedPacksCount, actualPacksCount);
@@ -187,13 +185,13 @@ namespace Tests.UnitTests
         {
             // Arrange
             var dpb = new DogPackBuilder();
-            var largeConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = 0 };
-            var smallConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = 0 };
-            var largeAggressiveConfig = new DogPackConfig { DogSize = DogSize.Large, MaxPacksCount = 0, IsAggressive = true };
-            var smallAggressiveConfig = new DogPackConfig { DogSize = DogSize.Small, MaxPacksCount = 0, IsAggressive = true };
+            var largeRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = 0 };
+            var smallRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = 0 };
+            var largeAggressiveRate = new PriceRate { DogSize = DogSize.Large, MaxPackSize = 0, IsAggressive = true };
+            var smallAggressiveRate = new PriceRate { DogSize = DogSize.Small, MaxPackSize = 0, IsAggressive = true };
 
             // Act
-            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveConfig, smallAggressiveConfig, largeConfig, smallConfig });
+            var dogPacks = dpb.Build(dogs, new[] { largeAggressiveRate, smallAggressiveRate, largeRate, smallRate });
 
             // Assert        
             var actualPacksCount = dogPacks.Count();

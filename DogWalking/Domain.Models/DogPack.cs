@@ -2,9 +2,8 @@
 
 namespace Domain.Models
 {
-    public class Customer
+    public class DogPack
     {
-        public int Id { get; set; }
         public List<Dog> Dogs { get; set; }
     }
 }

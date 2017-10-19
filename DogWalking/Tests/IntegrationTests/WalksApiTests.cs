@@ -19,7 +19,7 @@ namespace Tests.IntegrationTests
         // 1. Every week day has two walks - one in the morning and the second one in the evening
         // 2. Make sure the are no walks on the weekend
 
-        private const string BuildWalksUri = "/api/walks/build";
+        private const string BuildWalksUri = "/api/v1/walks/build";
         private TestServer _server;
         private HttpClient _client;
 
@@ -53,23 +53,23 @@ namespace Tests.IntegrationTests
         [Test]
         public async Task Build_ensure_2_walks_a_day()
         {
+            // Arrange
             var payload = new { dateFrom = new DateTime(2117, 10, 18), dateTo = new DateTime(2117, 10, 30) };
             StringContent json = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+
+            // Act
             var response = await _client.PostAsync(BuildWalksUri, json);
             response.EnsureSuccessStatusCode();
 
+            // Assert
             var responseString = await response.Content.ReadAsStringAsync();
             var createdWalks = JsonConvert.DeserializeObject<List<Walk>>(responseString);
-
-            // TODO: get this working
-
-            // Assert
-            var group = createdWalks
+            var walksPerDay = createdWalks
                 .GroupBy(w => w.StartDateTime.Date,
                               (key, g) => new { key, count = g.Count() })
                 .Where(x => x.count != 2);
 
-            Assert.AreEqual(0, group.Count());
+            Assert.AreEqual(0, walksPerDay.Count());
         }
         
         [Test]
@@ -79,36 +79,3 @@ namespace Tests.IntegrationTests
         }
     }
 }
-
-// TODO: might be useful for integration tests
-//[DogPacksWithDogs]
-//public void Build_wolks_Monday_through_Friday(List<DogPack> dogPacks)
-//{
-//    // Arrange
-//    _weeklySchedulePayload.DogPacks = dogPacks;
-
-//    // Act
-//    var walks = _weeklyScheduleBuilder.Build(_weeklySchedulePayload);
-
-//    // Assert
-//    var isWeekDays = walks.All(w => IsWeekDay(w.StartDateTime.DayOfWeek));
-//    Assert.True(isWeekDays);
-
-//    bool IsWeekDay(DayOfWeek dayOfWeek) =>
-//        dayOfWeek != DayOfWeek.Saturday && dayOfWeek != DayOfWeek.Sunday;
-//}
-
-
-//public static Arbitrary<WorkingDayTimeBounds> WorkingDayTimeBounds() =>
-// Arb.Default
-//    .Derive<WorkingDayTimeBounds>()
-//    .Filter(tb => {
-//        return tb.DayStartsAt >= TimeSpan.FromHours(7) && tb.DayStartsAt <= TimeSpan.FromHours(11) &&
-//                  tb.DayEndsAt >= TimeSpan.FromHours(15) && tb.DayEndsAt <= TimeSpan.FromHours(19);
-//    });
-
-//class WorkingDayTimeBounds
-//{
-//    public TimeSpan DayStartsAt { get; set; }
-//    public TimeSpan DayEndsAt { get; set; }
-//}

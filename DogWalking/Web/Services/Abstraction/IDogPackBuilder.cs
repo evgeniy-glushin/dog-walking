@@ -5,6 +5,6 @@ namespace Web.Services
 {
     public interface IDogPackBuilder
     {
-        IEnumerable<DogPack> Build(IEnumerable<Dog> dogs, IEnumerable<DogPackConfig> configs);
+        IEnumerable<DogPack> Build(IEnumerable<Dog> dogs, IEnumerable<PriceRate> configs);
     }
 }

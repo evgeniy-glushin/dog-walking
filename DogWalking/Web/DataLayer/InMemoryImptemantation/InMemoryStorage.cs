@@ -16,11 +16,11 @@ namespace Web.DataLayer.InMemoryImptemantation
                     Id = 1,
                     WorkingDays = new List<WorkingDay>
                     {
-                        new WorkingDay { DayOfWeek = DayOfWeek.Monday, WorkingHours = new List<TimeSpan> { TimeSpan.FromHours(10), TimeSpan.FromHours(16) } },
-                        new WorkingDay { DayOfWeek = DayOfWeek.Tuesday, WorkingHours = new List<TimeSpan> { TimeSpan.FromHours(10), TimeSpan.FromHours(16) } },
-                        new WorkingDay { DayOfWeek = DayOfWeek.Wednesday, WorkingHours = new List<TimeSpan> { TimeSpan.FromHours(10), TimeSpan.FromHours(16) } },
-                        new WorkingDay { DayOfWeek = DayOfWeek.Thursday, WorkingHours = new List<TimeSpan> { TimeSpan.FromHours(10), TimeSpan.FromHours(16) } },
-                        new WorkingDay { DayOfWeek = DayOfWeek.Friday, WorkingHours = new List<TimeSpan> { TimeSpan.FromHours(10), TimeSpan.FromHours(16) } },
+                        new WorkingDay { DayOfWeek = DayOfWeek.Monday, WorkingHours = new List<TimeSpan> { TimeSpan.FromHours(10), TimeSpan.FromHours(15) } },
+                        new WorkingDay { DayOfWeek = DayOfWeek.Tuesday, WorkingHours = new List<TimeSpan> { TimeSpan.FromHours(10), TimeSpan.FromHours(15) } },
+                        new WorkingDay { DayOfWeek = DayOfWeek.Wednesday, WorkingHours = new List<TimeSpan> { TimeSpan.FromHours(10), TimeSpan.FromHours(15) } },
+                        new WorkingDay { DayOfWeek = DayOfWeek.Thursday, WorkingHours = new List<TimeSpan> { TimeSpan.FromHours(10), TimeSpan.FromHours(15) } },
+                        new WorkingDay { DayOfWeek = DayOfWeek.Friday, WorkingHours = new List<TimeSpan> { TimeSpan.FromHours(10), TimeSpan.FromHours(15) } },
                     },
                     Customers = new List<Customer>
                     {
@@ -72,10 +72,10 @@ namespace Web.DataLayer.InMemoryImptemantation
                     DefaultWalkDuration = TimeSpan.FromHours(1),
                     PriceRates = new List<PriceRate>
                     {
-                        new PriceRate { DogSize = DogSize.Small, IsAggressive = false, MaxPacksCount = 5, PricePerWalk = 10 },
-                        new PriceRate { DogSize = DogSize.Large, IsAggressive = false, MaxPacksCount = 3, PricePerWalk = 20 },
-                        new PriceRate { DogSize = DogSize.Small, IsAggressive = true, MaxPacksCount = 1, PricePerWalk = 55 },
-                        new PriceRate { DogSize = DogSize.Large, IsAggressive = true, MaxPacksCount = 1, PricePerWalk = 65 }
+                        new PriceRate { DogSize = DogSize.Small, IsAggressive = false, MaxPackSize = 5, PricePerWalk = 10 },
+                        new PriceRate { DogSize = DogSize.Large, IsAggressive = false, MaxPackSize = 3, PricePerWalk = 20 },
+                        new PriceRate { DogSize = DogSize.Small, IsAggressive = true, MaxPackSize = 1, PricePerWalk = 55 },
+                        new PriceRate { DogSize = DogSize.Large, IsAggressive = true, MaxPackSize = 1, PricePerWalk = 65 }
                     }
                 }
             };

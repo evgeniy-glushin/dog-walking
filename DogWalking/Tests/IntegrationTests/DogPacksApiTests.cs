@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Web;
+using static Tests.DogPacksHelper;
 
 namespace Tests.IntegrationTests
 {
@@ -17,7 +18,7 @@ namespace Tests.IntegrationTests
         // 1. All the dog packs are separeted into small, large and aggressive dogs
         // 2. Pack sizes match with requirements large - 3, small - 5, aggressive - 1
 
-        private const string BuildPacksUri = "/api/dogpacks/build";
+        private const string BuildPacksUri = "/api/v1/dogpacks/build";
         private TestServer _server;
         private HttpClient _client;
         [SetUp]
@@ -38,15 +39,11 @@ namespace Tests.IntegrationTests
             var createdPacks = JsonConvert.DeserializeObject<List<DogPack>>(responseString);
 
             // Assert
-            var isSameType = createdPacks.All(dp => IsSameType(dp.Dogs));
-            Assert.True(isSameType);
+            var isSameType = createdPacks
+                .Select(dp => dp.Dogs)
+                .All(HaveSameType);
 
-            // TODO: might be refactored
-            bool IsSameType(IEnumerable<Dog> dogsInPack)
-            {
-                var first = dogsInPack.FirstOrDefault();
-                return dogsInPack.All(d => d.Size == first.Size && d.IsAggressive == first.IsAggressive);
-            }
+            Assert.True(isSameType);
         }
 
         [Test]
@@ -77,13 +74,7 @@ namespace Tests.IntegrationTests
                 var (size, isAggressive) = GetDogPackType(pack);
                 var expected = expectedNumbers.First(x => x.size == size && x.isAggressive == isAggressive);
                 return pack.Dogs.Count <= expected.number;
-            }
-            
-            (DogSize, bool) GetDogPackType(DogPack pack)
-            {
-                var firstDog = pack.Dogs.FirstOrDefault();
-                return (firstDog.Size, firstDog.IsAggressive);
-            }
+            }            
         }
     }
 }

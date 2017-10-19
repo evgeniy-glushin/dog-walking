@@ -31,8 +31,8 @@ namespace Web
 
             services.AddScoped<IDogWalkersRepository, DogWalkerInMemoryRepository>();
             services.AddScoped<IDogPackBuilder, DogPackBuilder>();
-            services.AddScoped<IWalksBuilder, WalksWeekdaysBuilder>();
-            services.AddScoped<IWalkingService, WalkingService>();
+            services.AddScoped<IScheduleBuilder, WeekDaysScheduleBuilder>();
+            services.AddScoped<IWalkingFacade, WalkingFacade>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
