@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Web.Services.Abstraction;
 using static Web.Services.Imptemantation.DatesHelper;
 
 namespace Web.Services
@@ -9,13 +10,13 @@ namespace Web.Services
     public class WeekDaysScheduleBuilder : IScheduleBuilder
     {
         /// <summary>
-        /// Creates walks on the week days.
+        /// Creates walks on the week days. Calculates how much each walk costs according to the rates provided.
         /// </summary>
         public IEnumerable<Walk> Build(WeekDaysSchedulePayload payload)
         {
             var packsWithDogs = payload?.DogPacks?.Where(dp => dp.Dogs?.Any() ?? false).ToList();
 
-            if (!packsWithDogs?.Any() ?? false || payload?.WorkingDays == null)
+            if (!packsWithDogs?.Any() ?? true || payload?.WorkingDays == null)
                 return Enumerable.Empty<Walk>();
 
             var getDogPack = BuildDogPackFetcher();            
@@ -24,7 +25,7 @@ namespace Web.Services
                 .Where(d => d.IsWeekDay())
                 .SelectMany(date => CreateWalks(date, getDogPack, payload));                      
            
-            // Reterns function which gets dog packs one by one in turn
+            // Returns function which gets dog packs one by one in turn
             Func<DogPack> BuildDogPackFetcher()
             {
                 var dogPacksQueue = new Queue<DogPack>();
@@ -72,7 +73,7 @@ namespace Web.Services
 
             bool InTimeBoundaries(TimeSpan wh) =>
                 date.Date == payload.Now.Date ?
-                    wh >= payload.DateFrom.TimeOfDay && wh <= payload.DateTo.TimeOfDay : true;
+                    wh >= payload.Now.TimeOfDay && payload.Now.TimeOfDay <= wh : true;
         }        
     }
 }

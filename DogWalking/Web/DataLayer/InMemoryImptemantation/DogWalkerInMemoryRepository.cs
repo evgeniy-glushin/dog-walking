@@ -21,7 +21,7 @@ namespace Web.DataLayer.InMemoryImptemantation
             var dogWalker = InMemoryStorage
                 .DogWalkers.FirstOrDefault(d => d.Id == userId);
 
-            return Task.FromResult(dogWalker.DogPacks);
+            return Task.FromResult(dogWalker?.DogPacks ?? new List<DogPack>());
         }
 
         public Task<List<Walk>> GetWalks(int userId)
@@ -29,7 +29,7 @@ namespace Web.DataLayer.InMemoryImptemantation
             var dogWalker = InMemoryStorage
                 .DogWalkers.FirstOrDefault(d => d.Id == userId);
 
-            return Task.FromResult(dogWalker.BookedWalks);
+            return Task.FromResult(dogWalker.BookedWalks ?? new List<Walk>());
         }
 
         public Task<bool> Save(DogWalker dogWalker)

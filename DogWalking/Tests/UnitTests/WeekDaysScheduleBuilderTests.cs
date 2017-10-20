@@ -3,6 +3,7 @@ using FsCheck;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Web.Services;
 using static Tests.DogPacksHelper;
@@ -25,13 +26,15 @@ namespace Tests.UnitTests
         {
             // Arrange
             var payload = new WeeklySchedulePayloadBuilder()
-                .UseDogPacks(dogPacks)
-                .UseScheduleBounds(scheduleBounds)
+                .With(p => p.DogPacks = dogPacks)
+                .With(p => p.DateFrom = scheduleBounds.DateFrom)
+                .With(p => p.DateTo = scheduleBounds.DateTo)
+                .With(p => p.Now = scheduleBounds.Now)
                 .SetupWeekDays()
                 .Build();
 
             // Act
-            var walks = _weeklyScheduleBuilder.Build(payload);
+            var walks = _weeklyScheduleBuilder.Build(payload);           
 
             // Assert
             var isMatchWorkingHours = walks.All(w => IsMatchWorkingHours(w.StartDateTime));
@@ -48,10 +51,12 @@ namespace Tests.UnitTests
         {
             // Arrange
             var payload = new WeeklySchedulePayloadBuilder()
-               .UseDogPacks(dogPacks)
-               .UseScheduleBounds(scheduleBounds)
-               .SetupWeekDays()
-               .Build();
+                .With(p => p.DogPacks = dogPacks)
+                .With(p => p.DateFrom = scheduleBounds.DateFrom)
+                .With(p => p.DateTo = scheduleBounds.DateTo)
+                .With(p => p.Now = scheduleBounds.Now)
+                .SetupWeekDays()
+                .Build();
 
             // Act
             var walks = _weeklyScheduleBuilder.Build(payload);
@@ -66,8 +71,10 @@ namespace Tests.UnitTests
         {
             // Arrange
             var payload = new WeeklySchedulePayloadBuilder()
-               .UseDogPacks(dogPacks)
-               .UseScheduleBounds(scheduleBounds)
+               .With(p => p.DogPacks = dogPacks)
+               .With(p => p.DateFrom = scheduleBounds.DateFrom)
+               .With(p => p.DateTo = scheduleBounds.DateTo)
+               .With(p => p.Now = scheduleBounds.Now)
                .SetupWeekDays()
                .Build();
 
@@ -87,8 +94,10 @@ namespace Tests.UnitTests
         {
             // Arrange
             var payload = new WeeklySchedulePayloadBuilder()
-               .UseDogPacks(dogPacks)
-               .UseScheduleBounds(scheduleBounds)
+               .With(p => p.DogPacks = dogPacks)
+               .With(p => p.DateFrom = scheduleBounds.DateFrom)
+               .With(p => p.DateTo = scheduleBounds.DateTo)
+               .With(p => p.Now = scheduleBounds.Now)
                .SetupWeekDays()
                .Build();
 
@@ -98,49 +107,67 @@ namespace Tests.UnitTests
             // Assert
             var walksWithWrongTotal = walks.Where(NotValidPrice).ToList();
             Assert.AreEqual(0, walksWithWrongTotal.Count);
-            
-            bool NotValidPrice(Walk walk) => 
+
+            bool NotValidPrice(Walk walk) =>
                 (walk.Price / PriceForDogPerWalk(walk)) != walk.DogPack.Dogs.Count;
 
             decimal PriceForDogPerWalk(Walk walk) =>
                 PriceRate(GetDogPackType(walk.DogPack)).PricePerWalk;
-            
+
             PriceRate PriceRate((DogSize size, bool isAggressive) data) =>
                 payload.PriceRates.Find(pr => pr.DogSize == data.size &&
                                               pr.IsAggressive == data.isAggressive);
         }
 
-        // TODO: refactor this test
-        [ScheduleBulder]
-        public void Build_should_get_no_walks_when_wrong_input(List<DogPack> dogPacks)
+        [Test]
+        public void Build_should_get_no_walks_when_wrong_input()
         {
             var walks = _weeklyScheduleBuilder.Build(null);
             Assert.AreEqual(0, walks.Count(), "should get no walks when input is NULL");
 
             walks = _weeklyScheduleBuilder.Build(new WeekDaysSchedulePayload { });
             Assert.AreEqual(0, walks.Count(), "should get no walks when input is empty");
+
+            var payloadWithNoDogPacks = new WeeklySchedulePayloadBuilder()
+               .With(p => p.DogPacks = null)
+               .Build();
+
+            walks = _weeklyScheduleBuilder.Build(payloadWithNoDogPacks);
+            Assert.AreEqual(0, walks.Count(), "should get no walks when no dog packs");
+
+            var payloadWithNoPriceRates = new WeeklySchedulePayloadBuilder()
+              .With(p => p.PriceRates = null)
+              .Build();
+
+            walks = _weeklyScheduleBuilder.Build(payloadWithNoPriceRates);
+            Assert.AreEqual(0, walks.Count(), "should get no walks when no price rates");
+
+            var payloadWithNoWorkingDays = new WeeklySchedulePayloadBuilder()
+             .With(p => p.WorkingDays = null)
+             .Build();
+
+            walks = _weeklyScheduleBuilder.Build(payloadWithNoWorkingDays);
+            Assert.AreEqual(0, walks.Count(), "should get no walks when no working days");
         }
 
-        [ScheduleBulder]
-        public void Build_given_payload_should_schedule_8_walks()
+        [Test]
+        public void Build_given_payload_should_schedule_9_walks()
         {
             // Arrange      
             var payload = new WeeklySchedulePayloadBuilder()
-               .UseDogPacks(new List<DogPack> { new DogPack { Dogs = new List<Dog> { new Dog() { Size = DogSize.Large } } } })
-               .SetupWeekDays()
-               .Build();
-
-            // TODO: refactor this
-            payload.DateFrom = new DateTime(2017, 10, 14);
-            payload.DateTo = new DateTime(2017, 10, 21);
-            payload.WalkDuration = TimeSpan.FromHours(1);
-            payload.Now = new DateTime(2017, 10, 16) + TimeSpan.FromHours(12);
+             .With(p => p.DogPacks = new List<DogPack> { new DogPack { Dogs = new List<Dog> { new Dog() { Size = DogSize.Large } } } })
+             .With(p => p.DateFrom = new DateTime(2017, 10, 14))
+             .With(p => p.DateTo = new DateTime(2017, 10, 21))
+             .With(p => p.WalkDuration = TimeSpan.FromHours(1))
+             .With(p => p.Now = new DateTime(2017, 10, 16) + TimeSpan.FromHours(12))
+             .SetupWeekDays()
+             .Build();
 
             // Act
             var walks = _weeklyScheduleBuilder.Build(payload).ToList();
 
             // Assert            
-            Assert.AreEqual(8, walks.Count);
+            Assert.AreEqual(9, walks.Count);
         }
 
         public class SchedulePayload
@@ -153,9 +180,16 @@ namespace Tests.UnitTests
             public static Arbitrary<ScheduleTimeBounds> ScheduleTimeBounds() =>
                 Arb.Default
                    .Derive<ScheduleTimeBounds>()
-                   .Filter(tb => tb.DateFrom <= tb.DateTo &&
-                                 tb.DateFrom <= tb.Now &&
-                                 tb.DateTo >= tb.Now);
+                   .MapFilter(SwapDateFromAndDateToIfBigger, tb => tb.DateFrom <= tb.Now &&
+                                                                   tb.DateTo >= tb.Now);
+            
+            static ScheduleTimeBounds SwapDateFromAndDateToIfBigger(ScheduleTimeBounds dates)
+            {
+                if (dates.DateFrom > dates.DateTo)
+                    (dates.DateFrom, dates.DateTo) = (dates.DateTo, dates.DateFrom); // swap
+                
+                return dates;
+            }
         }
 
         public class ScheduleBulderAttribute : FsCheck.NUnit.PropertyAttribute
@@ -205,17 +239,9 @@ namespace Tests.UnitTests
                     WorkingHours = new List<TimeSpan> { TimeSpan.FromHours(10), TimeSpan.FromHours(16) }
                 }).ToList();
 
-            public WeeklySchedulePayloadBuilder UseScheduleBounds(ScheduleTimeBounds bounds)
+            public WeeklySchedulePayloadBuilder With(Action<WeekDaysSchedulePayload> f)
             {
-                _payload.DateFrom = bounds.DateFrom;
-                _payload.DateTo = bounds.DateTo;
-                _payload.Now = bounds.Now;
-                return this;
-            }
-
-            public WeeklySchedulePayloadBuilder UseDogPacks(List<DogPack> dogPacks)
-            {
-                _payload.DogPacks = dogPacks;
+                f(_payload);
                 return this;
             }
 

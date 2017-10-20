@@ -7,7 +7,7 @@ namespace Domain.Models
     {
         public int Id { get; set; }
         public List<Customer> Customers { get; set; }
-        public List<PriceRate> PriceRates { get; set; } // TODO: think about naming
+        public List<PriceRate> PriceRates { get; set; }
         public List<WorkingDay> WorkingDays { get; set; }
         public List<Walk> BookedWalks { get; set; }
         public List<DogPack> DogPacks { get; set; }

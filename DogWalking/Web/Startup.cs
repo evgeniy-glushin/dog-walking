@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Web.DataLayer.Abstraction;
 using Web.DataLayer.InMemoryImptemantation;
 using Web.Services;
+using Web.Services.Abstraction;
 
 namespace Web
 {
@@ -32,6 +33,7 @@ namespace Web
             services.AddScoped<IDogWalkersRepository, DogWalkerInMemoryRepository>();
             services.AddScoped<IDogPackBuilder, DogPackBuilder>();
             services.AddScoped<IScheduleBuilder, WeekDaysScheduleBuilder>();
+            services.AddScoped<IRevenueCalcService, RevenueCalcService>();
             services.AddScoped<IWalkingFacade, WalkingFacade>();
         }
 

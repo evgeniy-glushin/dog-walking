@@ -1,7 +1,7 @@
 ﻿using Domain.Models;
 using System.Collections.Generic;
 
-namespace Web.Services
+namespace Web.Services.Abstraction
 {
     public interface IScheduleBuilder
     {

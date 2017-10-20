@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.DataLayer.Abstraction;
+using Web.Services.Abstraction;
+using static System.Linq.Enumerable;
 
 namespace Web.Services
 {    
@@ -12,14 +14,17 @@ namespace Web.Services
         private IDogPackBuilder _dogPackBuilder;
         private IScheduleBuilder _walksBuilder;
         private IDogWalkersRepository _dogWalkersRepo;
+        private IRevenueCalcService _revenueCalcService;
 
         public WalkingFacade(IDogPackBuilder dogPackBuilder, 
             IScheduleBuilder walksBuilder, 
-            IDogWalkersRepository dogWalkersRepo)
+            IDogWalkersRepository dogWalkersRepo,
+            IRevenueCalcService revenueCalcService)
         {
             _dogPackBuilder = dogPackBuilder;
             _walksBuilder = walksBuilder;
             _dogWalkersRepo = dogWalkersRepo;
+            _revenueCalcService = revenueCalcService;
         }
 
         /// <summary>
@@ -89,6 +94,19 @@ namespace Web.Services
                 return (StatusCode.Ok, dogWalker.BookedWalks);
             else
                 return (StatusCode.SaveDogWalkerDbError, null);
+        }
+
+        /// <summary>
+        /// Generates revenue report in the date range between the earliest and the latest walk.
+        /// </summary>
+        public async Task<IEnumerable<RevenueReport>> CalcRevenue(int userId)
+        {
+            var dogWalker = await _dogWalkersRepo.GetByIdAsync(userId);
+
+            if (dogWalker?.BookedWalks?.Count > 0)               
+                return _revenueCalcService.Calc(dogWalker.BookedWalks);
+
+            return Empty<RevenueReport>();
         }
     }
 

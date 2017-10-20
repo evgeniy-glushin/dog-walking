@@ -15,17 +15,35 @@ namespace Tests.IntegrationTests
     [TestFixture]
     class DogPacksApiTests
     {
-        // 1. All the dog packs are separeted into small, large and aggressive dogs
-        // 2. Pack sizes match with requirements large - 3, small - 5, aggressive - 1
-
         private const string BuildPacksUri = "/api/v1/dogpacks/build";
         private TestServer _server;
         private HttpClient _client;
+
         [SetUp]
         public void BeforeEach()
         {
             _server = new TestServer(new WebHostBuilder().UseStartup<Startup>());
             _client = _server.CreateClient();
+        }
+
+        [Test]
+        public async Task Get_ensure_success_status_code()
+        {
+            // Act
+            var response = await _client.GetAsync("/api/v1/dogpacks/get");
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+        }
+
+        [Test]
+        public async Task Build_ensure_success_status_code()
+        {
+            // Act
+            var response = await _client.PostAsync(BuildPacksUri, null);
+
+            // Assert
+            response.EnsureSuccessStatusCode();
         }
 
         [Test]
@@ -50,7 +68,8 @@ namespace Tests.IntegrationTests
         public async Task Build_ensure_every_type_of_pack_has_right_number_of_dogs()
         {
             // Arrange
-            var expectedNumbers = new[]
+            // pack sizes match with requirements large -3, small - 5, aggressive - 1
+            var priceRates = new[]
             {
                 new { size = DogSize.Small, isAggressive = false, number = 5 },
                 new { size = DogSize.Large, isAggressive = false, number = 3 },
@@ -72,7 +91,7 @@ namespace Tests.IntegrationTests
             bool HaveCorrectSize(DogPack pack)
             {
                 var (size, isAggressive) = GetDogPackType(pack);
-                var expected = expectedNumbers.First(x => x.size == size && x.isAggressive == isAggressive);
+                var expected = priceRates.First(x => x.size == size && x.isAggressive == isAggressive);
                 return pack.Dogs.Count <= expected.number;
             }            
         }

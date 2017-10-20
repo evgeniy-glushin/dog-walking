@@ -2,7 +2,7 @@
 
 namespace Domain.Models
 {
-    public class RevenuReport
+    public class RevenueReport
     {
         public DateTime Date { get; set; }
         public decimal Total { get; set; }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Web.DataLayer.Abstraction;
-using Web.Services;
 using System.Threading.Tasks;
+using Web.Services.Abstraction;
 
 namespace Web.Controllers
 {
@@ -38,7 +38,7 @@ namespace Web.Controllers
                 case Services.StatusCode.Ok:
                     return Ok(createdPacks);
                 case Services.StatusCode.DogWalkerNotFound:
-                    return NotFound("Dog walking professional not found.");
+                    return NotFound("Dog walking professional is not found.");
                 case Services.StatusCode.SaveDogWalkerDbError:
                     return StatusCode(500, "Couldn't save the result to the DB.");
                 default:

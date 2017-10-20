@@ -2,14 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using Web.Services.Abstraction;
 
 namespace Web.Services
 {
     public class DogPackBuilder : IDogPackBuilder
     {
         /// <summary>
-        /// Creates dog packs for provided dogs.
+        /// Creates dog packs for the provided dogs.
         /// </summary>
         public IEnumerable<DogPack> Build(IEnumerable<Dog> dogs, IEnumerable<PriceRate> rates)
         {
