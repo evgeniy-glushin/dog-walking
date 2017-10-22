@@ -34,7 +34,7 @@ namespace Tests.UnitTests
                 .Build();
 
             // Act
-            var walks = _weeklyScheduleBuilder.Build(payload);           
+            var walks = _weeklyScheduleBuilder.Build(payload);
 
             // Assert
             var isMatchWorkingHours = walks.All(w => IsMatchWorkingHours(w.StartDateTime));
@@ -175,19 +175,58 @@ namespace Tests.UnitTests
             public static Arbitrary<DogPack> DogPack() =>
                 Arb.Default
                    .Derive<DogPack>()
-                   .Filter(dp => dp.Dogs.Any() && HaveSameType(dp.Dogs));
+                   .MapFilter(AdjustDogPack, dp => dp.Dogs.Any());
 
             public static Arbitrary<ScheduleTimeBounds> ScheduleTimeBounds() =>
                 Arb.Default
                    .Derive<ScheduleTimeBounds>()
-                   .MapFilter(SwapDateFromAndDateToIfBigger, tb => tb.DateFrom <= tb.Now &&
-                                                                   tb.DateTo >= tb.Now);
-            
-            static ScheduleTimeBounds SwapDateFromAndDateToIfBigger(ScheduleTimeBounds dates)
+                   .MapFilter(AdjustDates, tb => true);
+
+            /// <summary>
+            /// Adjusts dog type for each dog in a pack.
+            /// NOTE: significantly improves the performance of the tests.
+            /// </summary>
+            static DogPack AdjustDogPack(DogPack dp)
             {
+                if (dp.Dogs.Any())
+                    if (!HaveSameType(dp.Dogs))
+                    {
+                        var first = dp.Dogs.First();
+                        dp.Dogs.ForEach(x =>
+                             (x.Size, x.IsAggressive) = (first.Size, first.IsAggressive));
+                    }
+
+                return dp;
+            }
+
+            /// <summary>
+            /// Adjusts the time boundaries.
+            /// NOTE: significantly improves the performance of the tests.
+            /// </summary>
+            static ScheduleTimeBounds AdjustDates(ScheduleTimeBounds dates)
+            {
+                // set current year for all the input dates
+                var dateFromDiff = DateTime.Now.Year - dates.DateFrom.Year;
+                if (dateFromDiff != 0)
+                    dates.DateFrom = dates.DateFrom.AddYears(dateFromDiff);
+
+                var dateToDiff = DateTime.Now.Year - dates.DateTo.Year;
+                if (dateToDiff != 0)
+                    dates.DateTo = dates.DateTo.AddYears(dateToDiff);
+
+                var nowDiff = DateTime.Now.Year - dates.Now.Year;
+                if (nowDiff != 0)
+                    dates.Now = dates.Now.AddYears(nowDiff);
+
+                // adjusts the time boundaries 
                 if (dates.DateFrom > dates.DateTo)
-                    (dates.DateFrom, dates.DateTo) = (dates.DateTo, dates.DateFrom); // swap
-                
+                    (dates.DateFrom, dates.DateTo) = (dates.DateTo, dates.DateFrom); // swap             
+
+                if (dates.Now < dates.DateFrom)
+                    (dates.Now, dates.DateFrom) = (dates.DateFrom, dates.Now); // swap
+                else if (dates.Now > dates.DateTo)
+                    (dates.Now, dates.DateTo) = (dates.DateTo, dates.Now); // swap
+
                 return dates;
             }
         }
