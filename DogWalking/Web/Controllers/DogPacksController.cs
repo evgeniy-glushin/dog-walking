@@ -9,13 +9,13 @@ namespace Web.Controllers
     public class DogPacksController : DogWalkingBaseController
     {
         private IDogWalkersRepository _dogWalkersRepo;
-        private IWalkingFacade _wallkingService;
+        private IWalkingFacade _walkingService;
 
         public DogPacksController(IDogWalkersRepository dogWalkersRepo,
             IWalkingFacade walkingService)
         {
             _dogWalkersRepo = dogWalkersRepo;
-            _wallkingService = walkingService;
+            _walkingService = walkingService;
         }
 
         //GET api/dogpacks/get
@@ -31,7 +31,7 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Build()
         {
-            var (statusCode, createdPacks) = await _wallkingService.BuildDogPacksAsync(UserId);
+            var (statusCode, createdPacks) = await _walkingService.BuildDogPacksAsync(UserId);
 
             switch (statusCode)
             {

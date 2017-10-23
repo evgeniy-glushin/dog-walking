@@ -10,13 +10,13 @@ namespace Web.Controllers
     public class WalksController : DogWalkingBaseController
     {
         private IDogWalkersRepository _dogWalkersRepo;
-        private IWalkingFacade _wallkingService;
+        private IWalkingFacade _walkingService;
 
         public WalksController(IDogWalkersRepository dogWalkersRepo,
             IWalkingFacade walkingService)
         {
             _dogWalkersRepo = dogWalkersRepo;
-            _wallkingService = walkingService;
+            _walkingService = walkingService;
         }
 
         //GET api/walks/get
@@ -32,7 +32,7 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Build([FromBody] BuildWalksPayload payload)
         {
-            var (statusCode, createdWalks) = await _wallkingService.BuildWalksAsync(UserId, payload);
+            var (statusCode, createdWalks) = await _walkingService.BuildWalksAsync(UserId, payload);
 
             switch (statusCode)
             {
